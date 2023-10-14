@@ -1,3 +1,4 @@
+using Dating_WebAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dating_WebAPI.Data;
@@ -8,5 +9,7 @@ public class DataContext : DbContext
     {
 
     }
+
+    public DbSet<AppUser> Users { get; set; } = null!;
 
 }
