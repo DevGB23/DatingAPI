@@ -16,15 +16,15 @@ project.lock.json
 *.sln.docstates
 
 # Build results
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
+Dating-WebAPI/Debug/
+Dating-WebAPI/Release/
+Dating-WebAPI/Releases/
 x64/
 x86/
-build/
+/build/
 bld/
-bin/*
-obj/*
+Dating-WebAPI/bin/*
+Dating-WebAPI/obj/*
 msbuild.log
 msbuild.err
 msbuild.wrn
