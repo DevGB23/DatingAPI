@@ -1,21 +1,18 @@
-using Dating_WebAPI.Data;
-using Microsoft.EntityFrameworkCore;
+using Dating_WebAPI.Extensions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var PgConn = builder.Configuration["ConnectionString:Dating"];
-
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseNpgsql(PgConn));
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.IdentityServices(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -31,6 +28,7 @@ app.UseHttpsRedirection();
 app.UseCors(builder => builder.AllowAnyHeader()
 .AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -41,3 +41,11 @@
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/obj/Debug/net7.0/Dating-WebAPI.pdb
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/obj/Debug/net7.0/Dating-WebAPI.genruntimeconfig.cache
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/obj/Debug/net7.0/ref/Dating-WebAPI.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.Abstractions.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.Logging.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.Protocols.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Microsoft.IdentityModel.Tokens.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/System.IdentityModel.Tokens.Jwt.dll
