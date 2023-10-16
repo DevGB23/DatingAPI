@@ -1,12 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "AcsloPMm0TMVZ36qJb2XpbS25u9nypOEkvJ2AbA6/lQXg6HUoaH+qbE7SXOVgWqMVJeoNicKi+P/7OOJEl+qtg==",
+  "dgSpecHash": "0KrshA70FMGB8J1L5KGlDz18OCpsyGczfEEa8R0VS6FRPbFgvtDsfIasbqUGrDlvDZdezVErl5miGL7917ZfRg==",
   "success": true,
   "projectFilePath": "/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/Dating-WebAPI.csproj",
   "expectedPackageFiles": [
+    "/home/carlosp81/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
+    "/home/carlosp81/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/7.0.11/microsoft.aspnetcore.authentication.jwtbearer.7.0.11.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/microsoft.aspnetcore.openapi/7.0.12/microsoft.aspnetcore.openapi.7.0.12.nupkg.sha512",
+    "/home/carlosp81/.nuget/packages/microsoft.csharp/4.7.0/microsoft.csharp.4.7.0.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/microsoft.entityframeworkcore/7.0.11/microsoft.entityframeworkcore.7.0.11.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/microsoft.entityframeworkcore.abstractions/7.0.11/microsoft.entityframeworkcore.abstractions.7.0.11.nupkg.sha512",
     "/home/carlosp81/.nuget/packages/microsoft.entityframeworkcore.analyzers/7.0.11/microsoft.entityframeworkcore.analyzers.7.0.11.nupkg.sha512",

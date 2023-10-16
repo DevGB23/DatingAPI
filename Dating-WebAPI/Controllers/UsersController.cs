@@ -1,8 +1,9 @@
-using Dating_WebAPI.Data;
+using AutoMapper;
+using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
+using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dating_WebAPI.Controllers;
 
@@ -10,31 +11,43 @@ namespace Dating_WebAPI.Controllers;
 public class UsersController : BaseApiController
 {
 
-    private readonly DataContext _context;
+    private readonly IUserRepository _repo;
+    private readonly IMapper _mapper;
 
-    public UsersController(DataContext context)
+    public UsersController(IUserRepository repo, IMapper mapper)
     {
-        _context = context;               
+        _repo = repo;
+        _mapper = mapper;
     }
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AppUser>>> GetAllUsersAsync()
+    public async Task<ActionResult<IEnumerable<MembersDTO>>> GetAllUsersAsync()
     {
-        List<AppUser> userList = await _context.Users.ToListAsync();
+        IEnumerable<MembersDTO> userList = await _repo.GetMembersAsync();
 
-        return userList;
+        return Ok(userList);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<AppUser>> GetUserAsync(int? id)
+    public async Task<ActionResult<MembersDTO>> GetUserByIdAsync(int id)
     {
-        AppUser? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        MembersDTO? member = await _repo.GetMemberByIdAsync(id);
             
-        if ( user is null )
-        {
-            return NotFound($"User with ID {id} was not found");
-        }
-        return user;
+        if ( member is null ) return NotFound($"User with ID {id} was not found");
+
+        return Ok(member);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{username}")]
+    public async Task<ActionResult<MembersDTO>> GetUserByUsernameAsync(string username)
+    {
+        MembersDTO? member = await _repo.GetMemberByNameAsync(username);
+            
+        if ( member is null ) return NotFound($"User with ID {username} was not found");
+        
+        return Ok(member);
     }
 }
