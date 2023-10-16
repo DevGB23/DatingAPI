@@ -20,7 +20,7 @@ public class UsersController : BaseApiController
         _mapper = mapper;
     }
 
-    [AllowAnonymous]
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MembersDTO>>> GetAllUsersAsync()
     {
@@ -29,7 +29,7 @@ public class UsersController : BaseApiController
         return Ok(userList);
     }
 
-    [AllowAnonymous]
+    
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MembersDTO>> GetUserByIdAsync(int id)
     {
@@ -40,7 +40,7 @@ public class UsersController : BaseApiController
         return Ok(member);
     }
 
-    [AllowAnonymous]
+    
     [HttpGet("{username}")]
     public async Task<ActionResult<MembersDTO>> GetUserByUsernameAsync(string username)
     {
