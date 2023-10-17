@@ -65,7 +65,6 @@ public class UsersController : BaseApiController
         
         _mapper.Map(memberUpdateDTO, user);
 
-        // await _repo.SaveAsync();
         if (user is null) return NotFound("User not found");
 
         await _repo.UpdateAsync(user);
