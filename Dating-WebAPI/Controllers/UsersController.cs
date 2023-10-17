@@ -60,17 +60,6 @@ public class UsersController : BaseApiController
         return Ok(member);
     }
 
-    
-    [HttpGet("{username}")]   
-    public async Task<ActionResult<AppUser>> GetUser(string username)
-    {
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == username);
-
-        if (user is null) return NotFound();
-
-        return user;
-    }
-
 
     [HttpPut]
     public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
@@ -109,10 +98,8 @@ public class UsersController : BaseApiController
 
         user.Photos.Add(photo);
 
-        PhotoDTO pdto  = _mapper.Map<PhotoDTO>(photo);
-
         await _repo.UpdateAsync(user);
         
-        return CreatedAtAction(nameof(GetUser), new {username = user.Username}, pdto);
+        return _mapper.Map<PhotoDTO>(photo);
     }
 }

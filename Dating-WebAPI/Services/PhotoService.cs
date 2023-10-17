@@ -1,7 +1,6 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Dating_WebAPI.Helpers;
-using Dating_WebAPI.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace Dating_WebAPI.Services;
