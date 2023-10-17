@@ -52,3 +52,5 @@
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Data/UserSeedData.json
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/AutoMapper.dll
 /Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/CloudinaryDotNet.dll
+/Projects/Init_Projects/Dotnet/Personal-Projects/DatingAPI/Dating-WebAPI/bin/Debug/net7.0/Newtonsoft.Json.dll

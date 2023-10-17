@@ -1,7 +1,10 @@
 using System.Security.Claims;
 using AutoMapper;
+using Dating_WebAPI.Data;
 using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
+using Dating_WebAPI.Extensions;
+using Dating_WebAPI.Helpers;
 using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,11 +18,15 @@ public class UsersController : BaseApiController
 
     private readonly IUserRepository _repo;
     private readonly IMapper _mapper;
+    private readonly IPhotoService _photoService;
+    private readonly DataContext _dataContext;
 
-    public UsersController(IUserRepository repo, IMapper mapper)
+    public UsersController(IUserRepository repo, IMapper mapper, IPhotoService photoService, DataContext dataContext)
     {
         _repo = repo;
         _mapper = mapper;
+        _photoService = photoService;
+        _dataContext = dataContext;
     }
 
     
@@ -54,14 +61,21 @@ public class UsersController : BaseApiController
     }
 
     
+    [HttpGet("{username}")]   
+    public async Task<ActionResult<AppUser>> GetUser(string username)
+    {
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == username);
+
+        if (user is null) return NotFound();
+
+        return user;
+    }
+
+
     [HttpPut]
     public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
     {
-        var username =  User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (username is null) return NotFound("Username not found");
-
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == username);
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
         
         _mapper.Map(memberUpdateDTO, user);
 
@@ -70,5 +84,35 @@ public class UsersController : BaseApiController
         await _repo.UpdateAsync(user);
 
         return Ok();
+    }
+
+
+    [HttpPost("add-photo")]
+    public async Task<ActionResult<PhotoDTO>> AddPhoto (IFormFile file)
+    {
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
+
+        if (user is null) return NotFound();
+
+        var result = await _photoService.AddPhotoAsync(file);
+
+        if (result.Error is not null) return BadRequest(result.Error.Message);
+
+        var photo = new Photo
+        {
+            ImageUrl = result.SecureUrl.AbsoluteUri,
+            PublicId = result.PublicId,
+            AppUserId = user.Id,
+        };
+
+        if (user.Photos.Count == 0) photo.IsMain = true;
+
+        user.Photos.Add(photo);
+
+        PhotoDTO pdto  = _mapper.Map<PhotoDTO>(photo);
+
+        await _repo.UpdateAsync(user);
+        
+        return CreatedAtAction(nameof(GetUser), new {username = user.Username}, pdto);
     }
 }

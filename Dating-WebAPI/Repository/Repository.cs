@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Dating_WebAPI.Data;
+using Dating_WebAPI.Entities;
 using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,9 +70,9 @@ public class Repository<T> : IRepository<T> where T : class
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<bool> SaveAsync()
+    public async Task SaveAsync()
     {
-       return await _db.SaveChangesAsync() > 0;
+       await _db.SaveChangesAsync();
     }
 }
 

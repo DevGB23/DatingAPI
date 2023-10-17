@@ -1,4 +1,5 @@
 using Dating_WebAPI.Data;
+using Dating_WebAPI.Helpers;
 using Dating_WebAPI.Interfaces;
 using Dating_WebAPI.Repository;
 using Dating_WebAPI.Repository.Interfaces;
@@ -18,6 +19,9 @@ public static class ApplicationServiceExtensions
 
         services.AddScoped<ITokenService, TokenService>(); 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICloudinaryService, CloudinarySettings>();
+        services.AddScoped<IPhotoService, PhotoService>();
+        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());   
 
