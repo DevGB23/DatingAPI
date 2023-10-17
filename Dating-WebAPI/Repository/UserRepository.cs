@@ -14,13 +14,11 @@ namespace Dating_WebAPI.Repository;
 public class UserRepository : Repository<AppUser>, IUserRepository
 {
     private readonly DataContext _db;
-    internal DbSet<MembersDTO> dbset;
     private readonly IMapper _mapper;
 
     public UserRepository(DataContext db, IMapper mapper) : base(db)
     {
         _db = db;
-        this.dbset = _db.Set<MembersDTO>();
         _mapper = mapper;
     }
 
@@ -54,13 +52,14 @@ public class UserRepository : Repository<AppUser>, IUserRepository
                         .ToListAsync();
     }
 
-    public async Task<AppUser> UpdateAsync(AppUser entity)
+    public async Task UpdateAsync(AppUser entity)
     {
-        entity.CreatedAt = DateTime.UtcNow;
         _db.Users.Update(entity);
         await _db.SaveChangesAsync();        
-        return entity;
     }
 
-
+    public async Task<IEnumerable<AppUser>> GetUsersAsync()
+    {
+        return await _db.Users.ToListAsync();
+    }
 }

@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using AutoMapper;
 using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
 using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dating_WebAPI.Controllers;
@@ -46,8 +48,28 @@ public class UsersController : BaseApiController
     {
         MembersDTO? member = await _repo.GetMemberByNameAsync(username);
             
-        if ( member is null ) return NotFound($"User with ID {username} was not found");
+        if ( member is null ) return NotFound($"User with username {username} was not found");
         
         return Ok(member);
+    }
+
+    
+    [HttpPut]
+    public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
+    {
+        var username =  User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (username is null) return NotFound("Username not found");
+
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == username);
+        
+        _mapper.Map(memberUpdateDTO, user);
+
+        // await _repo.SaveAsync();
+        if (user is null) return NotFound("User not found");
+
+        await _repo.UpdateAsync(user);
+
+        return Ok();
     }
 }

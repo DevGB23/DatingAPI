@@ -69,9 +69,9 @@ public class Repository<T> : IRepository<T> where T : class
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task SaveAsync()
+    public async Task<bool> SaveAsync()
     {
-        await _db.SaveChangesAsync();
+       return await _db.SaveChangesAsync() > 0;
     }
 }
 
