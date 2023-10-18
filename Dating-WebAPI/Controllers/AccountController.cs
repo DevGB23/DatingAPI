@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using AutoMapper;
 using Dating_WebAPI.Data;
 using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
@@ -12,11 +13,13 @@ public class AccountController : BaseApiController
 {
     private readonly DataContext _context;
     private readonly ITokenService _tokenService;
+    private readonly IMapper _mapper;
 
-    public AccountController(DataContext context, ITokenService tokenService)
+    public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
     {
         _context = context;
         _tokenService = tokenService;
+        _mapper = mapper;
     }
 
     [HttpPost("register")] // Post: api.account/register
@@ -24,13 +27,13 @@ public class AccountController : BaseApiController
     {
         if (await UserExists(registerDTO.Username)) return BadRequest("Username is already taken");
 
+        AppUser? user = _mapper.Map<AppUser>(registerDTO);
+
         using var hmac = new HMACSHA512();
 
-        AppUser user = new() {
-            Username = registerDTO.Username.ToLower(),
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password)),
-            PasswordSalt = hmac.Key
-        };  
+        user.Username = registerDTO.Username.ToLower();
+        user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password));
+        user.PasswordSalt = hmac.Key;
 
         _context.Add(user);
         await _context.SaveChangesAsync();
@@ -38,11 +41,13 @@ public class AccountController : BaseApiController
         return new UserDTO
         {
             Username = user.Username,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            KnownAs = user.KnownAs,
+            PhotoUrl = user.Photos.FirstOrDefault(p => p.IsMain)?.ImageUrl
         };
     }
 
-    [HttpPost("login")] // Post: api.account/register
+    [HttpPost("login")] // Post: api.account/login
     public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
     {
         AppUser? user = await _context.Users
