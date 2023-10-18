@@ -102,4 +102,30 @@ public class UsersController : BaseApiController
         
         return _mapper.Map<PhotoDTO>(photo);
     }
+
+
+    [HttpPut("set-main-photo/{photoId}")]
+    public async Task<ActionResult> SetMainPhoto(int photoId)
+    {
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
+
+        if (user is null) return NotFound();
+
+        Photo? photo = user.Photos.FirstOrDefault(p => p.Id == photoId);
+
+        if (photo is null) return NotFound();
+
+        if (photo.IsMain) return BadRequest("This is already your main photo"); 
+
+        Photo? currentMain = user.Photos.FirstOrDefault(p => p.IsMain);
+
+        if (currentMain is not null) currentMain.IsMain = false;
+
+        photo.IsMain = true;
+
+        await _repo.UpdateAsync(user);
+
+        return NoContent();
+    }
+
 }
