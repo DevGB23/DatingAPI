@@ -11,12 +11,14 @@ import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Vali
 export class RegisterComponent implements OnInit{
   @Output() cancelRegister = new EventEmitter(); 
   model: any = {};
+  maxDate: Date = new Date();
   registerForm: FormGroup = new FormGroup({});
 
   constructor(private accountSvc: AccountService, private toastr: ToastrService, private fb: FormBuilder){}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.maxDate.setFullYear(this.maxDate.getFullYear() -18);
   }
 
   initializeForm() {
