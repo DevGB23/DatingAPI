@@ -58,6 +58,12 @@ public class UserRepository : Repository<AppUser>, IUserRepository
         await _db.SaveChangesAsync();        
     }
 
+    public async Task RemoveAsync(AppUser entity)
+    {
+        _db.Users.Remove(entity);
+        await _db.SaveChangesAsync();        
+    }
+
     public async Task<IEnumerable<AppUser>> GetUsersAsync()
     {
         return await _db.Users.ToListAsync();

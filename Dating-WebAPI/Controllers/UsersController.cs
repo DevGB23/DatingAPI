@@ -128,4 +128,32 @@ public class UsersController : BaseApiController
         return NoContent();
     }
 
+
+    [HttpDelete("delete-photo/{photoId}")]
+    public async Task<ActionResult> DeletePhoto(int photoId)
+    {
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: true, u => u.Username == User.GetUsername());
+
+        if (user is null) return NotFound();
+
+        Photo? photo = user.Photos.FirstOrDefault(p => p.Id == photoId);
+
+        if (photo is null) return NotFound();
+
+        if (photo.IsMain) return BadRequest("You Cannot delete your main photo");
+
+        if (photo.PublicId is not null) 
+        {
+            var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+
+            if (result.Error is not null) return BadRequest(result.Error.Message);
+        }
+
+        user.Photos.Remove(photo);
+
+        await _repo.UpdateAsync(user);
+
+        return Ok();
+    }
+
 }
