@@ -6,6 +6,7 @@ using AutoMapper.QueryableExtensions;
 using Dating_WebAPI.Data;
 using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
+using Dating_WebAPI.Helpers;
 using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,10 +47,12 @@ public class UserRepository : Repository<AppUser>, IUserRepository
 
         return memberOut;
     }
-    public async Task<IEnumerable<MembersDTO>> GetMembersAsync()
+    public async Task<PagedList<MembersDTO>> GetMembersAsync(UserParams userParams)
     {
-        return await _db.Users.ProjectTo<MembersDTO>(_mapper.ConfigurationProvider)
-                        .ToListAsync();
+        var query = _db.Users.ProjectTo<MembersDTO>(_mapper.ConfigurationProvider)
+                .AsNoTracking();
+
+        return await PagedList<MembersDTO>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
     }
 
     public async Task UpdateAsync(AppUser entity)
