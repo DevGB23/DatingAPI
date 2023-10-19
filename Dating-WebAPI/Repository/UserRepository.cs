@@ -49,10 +49,16 @@ public class UserRepository : Repository<AppUser>, IUserRepository
     }
     public async Task<PagedList<MembersDTO>> GetMembersAsync(UserParams userParams)
     {
-        var query = _db.Users.ProjectTo<MembersDTO>(_mapper.ConfigurationProvider)
-                .AsNoTracking();
+        var query = _db.Users.AsQueryable();
 
-        return await PagedList<MembersDTO>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
+        query = query.Where(u => u.Username != userParams.CurrentUsername);
+        query = query.Where(u => u.Gender == userParams.Gender);
+
+        return await PagedList<MembersDTO>.CreateAsync (
+            query.AsNoTracking().ProjectTo<MembersDTO>(_mapper.ConfigurationProvider),
+            userParams.PageNumber, 
+            userParams.PageSize
+        );
     }
 
     public async Task UpdateAsync(AppUser entity)
