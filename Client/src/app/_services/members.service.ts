@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
 import { Member } from '../_models/member';
-import { map, of, take } from 'rxjs';
+import { Observable, map, of, take } from 'rxjs';
 import { PaginatedResults } from '../_models/Pagination';
 import { UserParams } from '../_models/UserParams';
 import { AccountService } from './account.service';
@@ -60,7 +60,7 @@ export class MembersService {
     params = params.append('gender', userParams.gender);
     params = params.append('orderBy', userParams.orderBy);
 
-    return this.getPaginatedresults<Member[]>(this.baseUrl + 'users', params).pipe(
+    return this.getPaginatedResults<Member[]>(this.baseUrl + 'users', params).pipe(
       map(response => {
         this.memberCache.set(Object.values(userParams).join('-'), response);
         return response;
@@ -75,8 +75,6 @@ export class MembersService {
       .find((member: Member) => member.username == username)
 
     if (member) return of(member);
-    
-    console.log(member);
     
     return this.http.get<Member>(this.baseUrl + 'users/' + username);
   }
@@ -110,12 +108,16 @@ export class MembersService {
   }
 
   
-  getLikes(predicate: string) {
-    return this.http.get<Member[]>(this.baseUrl + 'likes?predicate=' + predicate, {});
+  getLikes(predicate: string, pageNumber: number, pageSize: number) {
+    let params = this.getPaginationHeaders(pageNumber, pageSize);
+
+    params = params.append('predicate', predicate);
+
+    return this.getPaginatedResults<Member[]>(this.baseUrl + 'likes', params);
   }
 
 
-  private getPaginatedresults<T> (url: string, params: HttpParams) {
+  private getPaginatedResults<T> (url: string, params: HttpParams) {
     const paginatedResults: PaginatedResults<T> = new PaginatedResults<T>();
     
     return this.http.get<T>(url, { observe: 'response', params })
