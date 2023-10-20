@@ -20,5 +20,8 @@ public class AppUser
 
     public List<UsersLike>? LikedByUsers { get; set; }
     public List<UsersLike>? LikedUsers { get; set; }
+
+    public ICollection<Message>? MessagesSent { get; set; }
+    public ICollection<Message>? MessagesReceived { get; set; }    
 }
 
