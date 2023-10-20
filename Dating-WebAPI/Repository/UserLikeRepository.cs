@@ -2,6 +2,7 @@ using Dating_WebAPI.Data;
 using Dating_WebAPI.DTOs;
 using Dating_WebAPI.Entities;
 using Dating_WebAPI.Extensions;
+using Dating_WebAPI.Helpers;
 using Dating_WebAPI.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,34 +21,35 @@ public class UserLikeRepository : IUserLikeRepository
         return await _context.UserLikes.FindAsync(userSourceId, userTargetId);
     }
 
-    public async Task<IEnumerable<LikeDTO>> GetUserLikes(string predicate, int userId)
+    public async Task<PagedList<LikeDTO>> GetUserLikes(LikesParams likesParams)
     {
         IQueryable<AppUser> users = _context.Users.OrderBy(u => u.Username).AsQueryable();
 
         IQueryable<UsersLike> likes = _context.UserLikes.AsQueryable();
 
-        if ( predicate == "liked")
+        if ( likesParams.Predicate == "liked")
         {
-            likes = likes.Where(like => like.SourceUserId == userId);
+            likes = likes.Where(like => like.SourceUserId == likesParams.UserId);
             users = likes.Select(like => like.TargetUser);
         }
 
-        if ( predicate == "likedBy")
+        if ( likesParams.Predicate == "likedBy")
         {
-            likes = likes.Where(like => like.TargetUserId == userId);
+            likes = likes.Where(like => like.TargetUserId == likesParams.UserId);
             users = likes.Select(like => like.SourceUser);
         }
 
-
-
-        return await users.Select(user => new LikeDTO {
+        IQueryable<LikeDTO> likeUsers = users.Select(user => new LikeDTO 
+        {
             Username = user.Username,
             KnownAs = user.KnownAs,
             Age = user.DateOfBirth.CalculateAge(),
             PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain).ImageUrl,
             City = user.City,
             Id = user.Id
-        }).ToListAsync();
+        });
+
+        return await PagedList<LikeDTO>.CreateAsync(likeUsers, likesParams.PageNumber, likesParams.PageSize);
     }
 
     public async Task<AppUser> GetUserWithLikes(int userId)
