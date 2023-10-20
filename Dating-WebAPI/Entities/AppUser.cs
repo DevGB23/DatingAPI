@@ -1,5 +1,3 @@
-using Dating_WebAPI.Extensions;
-
 namespace Dating_WebAPI.Entities;
 public class AppUser
 {
@@ -20,10 +18,7 @@ public class AppUser
     public string City { get; set; } = string.Empty;
     public List<Photo> Photos { get; set; } = new ();
 
-    // public int GetAge()
-    // {
-    //     return DateOfBirth.CalculateAge();
-    // }
-
+    public List<UsersLike>? LikedByUsers { get; set; }
+    public List<UsersLike>? LikedUsers { get; set; }
 }
 
