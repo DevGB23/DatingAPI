@@ -23,7 +23,7 @@ public class UserLikeRepository : IUserLikeRepository
 
     public async Task<PagedList<LikeDTO>> GetUserLikes(LikesParams likesParams)
     {
-        IQueryable<AppUser> users = _context.Users.OrderBy(u => u.Username).AsQueryable();
+        IQueryable<AppUser> users = _context.Users.OrderBy(u => u.UserName).AsQueryable();
 
         IQueryable<UsersLike> likes = _context.UserLikes.AsQueryable();
 
@@ -41,7 +41,7 @@ public class UserLikeRepository : IUserLikeRepository
 
         IQueryable<LikeDTO> likeUsers = users.Select(user => new LikeDTO 
         {
-            Username = user.Username,
+            Username = user.UserName,
             KnownAs = user.KnownAs,
             Age = user.DateOfBirth.CalculateAge(),
             PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain).ImageUrl,

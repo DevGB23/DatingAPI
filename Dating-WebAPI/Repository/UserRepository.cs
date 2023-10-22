@@ -25,7 +25,7 @@ public class UserRepository : Repository<AppUser>, IUserRepository
     {
         MembersDTO memberOut = new();
 
-        MembersDTO? member = await _db.Users.Where(u => u.Username == username)
+        MembersDTO? member = await _db.Users.Where(u => u.UserName == username)
                         .ProjectTo<MembersDTO>(_mapper.ConfigurationProvider)
                         .SingleOrDefaultAsync();
         
@@ -49,7 +49,7 @@ public class UserRepository : Repository<AppUser>, IUserRepository
     {
         var query = _db.Users.AsQueryable();
 
-        query = query.Where(u => u.Username != userParams.CurrentUsername);
+        query = query.Where(u => u.UserName != userParams.CurrentUsername);
         query = query.Where(u => u.Gender == userParams.Gender);
 
         var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-userParams.MaxAge - 1));

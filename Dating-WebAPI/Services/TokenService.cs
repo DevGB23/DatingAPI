@@ -3,28 +3,35 @@ using System.Security.Claims;
 using System.Text;
 using Dating_WebAPI.Entities;
 using Dating_WebAPI.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Dating_WebAPI.Services;
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
+    private readonly UserManager<AppUser> _userManager;
     private readonly SymmetricSecurityKey _key;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, UserManager<AppUser> userManager)
     {
         _config = config;
+        _userManager = userManager;
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
     }
-    public string CreateToken(AppUser user)
+    public async Task<string> CreateToken(AppUser user)
     {
         var cp = new ClaimsPrincipal();
 
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username)
+            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
         };
+
+        IList<string> roles = await _userManager.GetRolesAsync(user);
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         ClaimsIdentity claimsIdentity = new (claims);
 
@@ -36,8 +43,6 @@ public class TokenService : ITokenService
             Expires = DateTime.Now.AddDays(7),
             SigningCredentials = creds
         };
-
-        var cl = claimsIdentity.Claims;
 
         var tokenHandler = new JwtSecurityTokenHandler();
 

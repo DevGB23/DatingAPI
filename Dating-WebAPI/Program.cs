@@ -1,6 +1,8 @@
 using Dating_WebAPI.Data;
+using Dating_WebAPI.Entities;
 using Dating_WebAPI.Extensions;
 using Dating_WebAPI.Middlewares;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -43,9 +45,11 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try
 {
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     var context = services.GetRequiredService<DataContext>();
     await context.Database.MigrateAsync();
-    await SeedData.SeedUsers(context);
+    await SeedData.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
 {

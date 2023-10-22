@@ -19,14 +19,12 @@ public class UsersController : BaseApiController
     private readonly IUserRepository _repo;
     private readonly IMapper _mapper;
     private readonly IPhotoService _photoService;
-    private readonly DataContext _dataContext;
 
-    public UsersController(IUserRepository repo, IMapper mapper, IPhotoService photoService, DataContext dataContext)
+    public UsersController(IUserRepository repo, IMapper mapper, IPhotoService photoService)
     {
         _repo = repo;
         _mapper = mapper;
         _photoService = photoService;
-        _dataContext = dataContext;
     }
 
     
@@ -34,9 +32,9 @@ public class UsersController : BaseApiController
     public async Task<ActionResult<PagedList<MembersDTO>>> GetAllUsersAsync([FromQuery]UserParams userParams)
     {
 
-        AppUser? currentUser = await _repo.GetAsync(includeProperties: "", tracked: true, u => u.Username == User.GetUsername());
+        AppUser? currentUser = await _repo.GetAsync(includeProperties: "", tracked: true, u => u.UserName == User.GetUsername());
 
-        userParams.CurrentUsername = currentUser.Username;
+        userParams.CurrentUsername = currentUser.UserName;
 
         if (string.IsNullOrEmpty(userParams.Gender)) {
             userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
@@ -75,7 +73,7 @@ public class UsersController : BaseApiController
     [HttpPut]
     public async Task<ActionResult> UpdateUser(MemberUpdateDTO memberUpdateDTO)
     {
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.UserName == User.GetUsername());
         
         _mapper.Map(memberUpdateDTO, user);
 
@@ -90,7 +88,7 @@ public class UsersController : BaseApiController
     [HttpPost("add-photo")]
     public async Task<ActionResult<PhotoDTO>> AddPhoto (IFormFile file)
     {
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.UserName == User.GetUsername());
 
         if (user is null) return NotFound();
 
@@ -118,7 +116,7 @@ public class UsersController : BaseApiController
     [HttpPut("set-main-photo/{photoId}")]
     public async Task<ActionResult> SetMainPhoto(int photoId)
     {
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.Username == User.GetUsername());
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: false, u => u.UserName == User.GetUsername());
 
         if (user is null) return NotFound();
 
@@ -143,7 +141,7 @@ public class UsersController : BaseApiController
     [HttpDelete("delete-photo/{photoId}")]
     public async Task<ActionResult> DeletePhoto(int photoId)
     {
-        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: true, u => u.Username == User.GetUsername());
+        AppUser? user = await _repo.GetAsync(includeProperties: "Photos", tracked: true, u => u.UserName == User.GetUsername());
 
         if (user is null) return NotFound();
 

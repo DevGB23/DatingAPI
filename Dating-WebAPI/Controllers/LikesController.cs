@@ -21,12 +21,12 @@ public class LikesController: BaseApiController
     public async Task<ActionResult> AddLike(string username)
         {
             var sourceUserId = User.GetUserId();
-            var likedUser = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.Username == username);
+            var likedUser = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
             var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
 
             if (likedUser == null) return NotFound();
 
-            if (sourceUser.Username == username) return BadRequest("You cannot like yourself");
+            if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
 
             UsersLike userLike = await _likesRepository.GetUserLike(sourceUserId, likedUser.Id);
 

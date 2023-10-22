@@ -29,8 +29,8 @@ public class MessagesController : BaseApiController
             if (username == createMessage?.RecipientUsername?.ToLower())
                 return BadRequest("You cannot send messages to yourself!");
 
-            AppUser? sender = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.Username == username);
-            AppUser? recipient = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.Username == createMessage.RecipientUsername);
+            AppUser? sender = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
+            AppUser? recipient = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == createMessage.RecipientUsername);
 
             if (recipient is null) return NotFound();
 
@@ -39,7 +39,7 @@ public class MessagesController : BaseApiController
                 Sender = sender,
                 SenderUsername = username,
                 Recipient = recipient,
-                RecipientUsername = recipient.Username,
+                RecipientUsername = recipient.UserName,
                 Content = createMessage.Content
             };
 

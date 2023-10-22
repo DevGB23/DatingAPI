@@ -1,10 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace Dating_WebAPI.Entities;
-public class AppUser
+public class AppUser : IdentityUser<int>
 {
-    public int Id { get; set; }
-    public string Username { get; set; } = string.Empty;
-    public byte[]? PasswordHash { get; set; }
-    public byte[]? PasswordSalt { get; set; }
     public DateOnly DateOfBirth { get; set; }
     public string KnownAs { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -22,6 +20,9 @@ public class AppUser
     public List<UsersLike>? LikedUsers { get; set; }
 
     public ICollection<Message>? MessagesSent { get; set; }
-    public ICollection<Message>? MessagesReceived { get; set; }    
+    public ICollection<Message>? MessagesReceived { get; set; } 
+
+    public ICollection<AppUserRole>? UserRoles { get; set; } 
+
 }
 
