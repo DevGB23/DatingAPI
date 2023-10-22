@@ -2,6 +2,7 @@ using Dating_WebAPI.Data;
 using Dating_WebAPI.Entities;
 using Dating_WebAPI.Extensions;
 using Dating_WebAPI.Middlewares;
+using Dating_WebAPI.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,13 +34,18 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseCors(builder => builder.AllowAnyHeader()
-.AllowAnyMethod().WithOrigins("https://localhost:4200"));
+app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+    .WithOrigins("https://localhost:4200"));
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<PresenceHub>("hubs/presence");
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
