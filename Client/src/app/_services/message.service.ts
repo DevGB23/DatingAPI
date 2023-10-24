@@ -77,8 +77,14 @@ export class MessageService {
 
 
   async sendMessage(username: string, content: string) {
-    return this.hubConnection?.invoke('SendMessage', { recipientUsername: username, content})
-      .catch(error => console.error(error));
+    if (this.hubConnection) {
+      const message = {
+        recipientUsename: username,
+        content
+      };
+      return this.hubConnection.invoke('SendMessage', {recipientUsername: username, content})
+        .catch(error => console.error(error));
+    }
   }
 
 

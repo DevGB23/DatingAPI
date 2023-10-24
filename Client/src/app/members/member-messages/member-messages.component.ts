@@ -45,13 +45,7 @@ export class MemberMessagesComponent implements OnInit{
     this.messageService.sendMessage(this.username, this.messageContent)
       .then(() => {
         this.messageForm?.reset();
-      })
-    // .subscribe({
-    //   next: message => {
-    //     // this.messages.push(message)
-    //     // this.messageForm?.reset()
-    //     this.loading = false
-    //   }
-    // })
+      }).catch(error =>console.error(error)
+      )
   }
 }

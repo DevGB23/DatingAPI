@@ -56,6 +56,11 @@ try
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     var context = services.GetRequiredService<DataContext>();
     await context.Database.MigrateAsync();
+    
+    // Truncate Connections' Table after a hot reload
+    var query = @$"TRUNCATE TABLE ""Connections""".ToString();
+    await context.Database.ExecuteSqlRawAsync(query);
+    
     await SeedData.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
