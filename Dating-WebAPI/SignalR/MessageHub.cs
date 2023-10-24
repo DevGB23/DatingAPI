@@ -88,7 +88,7 @@ public class MessageHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // await RemoveFromMessageGroup();
+        await RemoveFromMessageGroup();
         await base.OnDisconnectedAsync(exception);
     }
 
