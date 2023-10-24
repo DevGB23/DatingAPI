@@ -4,6 +4,7 @@ using Dating_WebAPI.Interfaces;
 using Dating_WebAPI.Repository;
 using Dating_WebAPI.Repository.Interfaces;
 using Dating_WebAPI.Services;
+using Dating_WebAPI.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dating_WebAPI.Extensions;
@@ -24,6 +25,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IPhotoService, PhotoService>();
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         services.AddScoped<LogUserActivity>();
+        services.AddSingleton<PresenceTracker>();
 
         services.AddSignalR();
 

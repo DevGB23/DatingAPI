@@ -8,10 +8,26 @@ namespace Dating_WebAPI.SignalR;
 [Authorize]
 public class PresenceHub : Hub
 {
+    private readonly PresenceTracker _tracker;
+    public PresenceHub(PresenceTracker tracker)
+    {
+        _tracker = tracker;
+        
+    }
     public override async Task OnConnectedAsync() 
     {
         var username = Context.User?.GetUsername();
+
+        if (string.IsNullOrEmpty(username)) return;
+
+        await _tracker.UserConnected(username, Context.ConnectionId);
+
         await Clients.Others.SendAsync("UserIsOnline", username);
+
+        var currentUsers = await _tracker.GetOnlineUsers();
+        
+        await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
+
         await base.OnConnectedAsync();
     }
 
@@ -19,6 +35,15 @@ public class PresenceHub : Hub
     {
         var username = Context.User?.GetUsername();
         await Clients.Others.SendAsync("UserIsOffline", username);
+
+        if (string.IsNullOrEmpty(username)) return;
+
+        var isOffline = await _tracker.UserDisconnected(username, Context.ConnectionId);
+
+        var currentUsers = await _tracker.GetOnlineUsers();
+
+        await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
+
 
         if (exception == null)
         {
