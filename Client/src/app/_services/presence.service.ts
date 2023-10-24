@@ -3,6 +3,8 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment.development';
 import { User } from '../_models/User';
+import { BehaviorSubject } from 'rxjs';
+import { Message } from '../_models/message';
 
 
 @Injectable({
@@ -11,6 +13,8 @@ import { User } from '../_models/User';
 export class PresenceService {
   hubUrl = environment.hubUrl;
   private hubConnection?: HubConnection;
+  private onlineUsersSource = new BehaviorSubject<string[]>([]);
+  onlineUsers$ = this.onlineUsersSource.asObservable();
 
   constructor(private toastrService: ToastrService) { }
 
@@ -24,16 +28,15 @@ export class PresenceService {
       .withAutomaticReconnect()
       .build();
       
-      this.onConnection();
+      this.onUsersConnection(this.hubConnection);
     }
     
     startHubConnection() {
-      if (this.hubConnection) {
-      this.hubConnection.start().catch(error => console.error(error));
-      }
+      if (this.hubConnection)
+        this.hubConnection.start().catch(error => console.error(error));
     }
     
-    onConnection() {
+    onUsersConnection(hubConnection: HubConnection) {
       if (this.hubConnection) {
         
         this.hubConnection.on("UserIsOnline", (username) => {
@@ -43,17 +46,17 @@ export class PresenceService {
         this.hubConnection.on("UserIsOffline", (username) => {
           this.toastrService.warning(username + ' has disconnected');
         });
+
+        this.hubConnection.on("GetOnlineUsers", usernameList => {
+          this.onlineUsersSource.next(usernameList);
+        })
       }
-
+    }
   
   
-  }
-  
-  
-  stopHubConnection() {
-    this.hubConnection?.stop().catch(error => console.error(error));
-  }
-
-
+    stopHubConnection() {
+      if (this.hubConnection)
+        this.hubConnection.stop().catch(error => console.error(error));
+    }
 
 }

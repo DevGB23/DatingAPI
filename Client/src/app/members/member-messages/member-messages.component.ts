@@ -4,7 +4,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { GalleryModule } from 'ng-gallery';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { TimeagoModule } from 'ngx-timeago';
-import { Message } from 'src/app/_models/message';
 import { MessageService } from 'src/app/_services/message.service';
 
 @Component({
@@ -16,12 +15,11 @@ import { MessageService } from 'src/app/_services/message.service';
 })
 export class MemberMessagesComponent implements OnInit{
   @ViewChild('messageForm') messageForm: NgForm | undefined;
-  @Input() messages: Message[] = [];
   @Input() username: string | undefined;
   messageContent: string = "";
   loading = false;
 
-  constructor(private messageService: MessageService) { }
+  constructor(public messageService: MessageService) { }
  
   ngOnInit(): void {
     
@@ -44,12 +42,16 @@ export class MemberMessagesComponent implements OnInit{
   sendMessage() {
     this.loading = true;
     if (!this.username) return;
-    this.messageService.sendMessage(this.username, this.messageContent).subscribe({
-      next: message => {
-        this.messages.push(message)
-        this.messageForm?.reset()
-        this.loading = false
-      }
-    })
+    this.messageService.sendMessage(this.username, this.messageContent)
+      .then(() => {
+        this.messageForm?.reset();
+      })
+    // .subscribe({
+    //   next: message => {
+    //     // this.messages.push(message)
+    //     // this.messageForm?.reset()
+    //     this.loading = false
+    //   }
+    // })
   }
 }
