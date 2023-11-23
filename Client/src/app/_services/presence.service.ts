@@ -3,8 +3,8 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment.development';
 import { User } from '../_models/User';
-import { BehaviorSubject } from 'rxjs';
-import { Message } from '../_models/message';
+import { BehaviorSubject, take } from 'rxjs';
+import { Router } from '@angular/router';
 
 
 @Injectable({
@@ -16,7 +16,7 @@ export class PresenceService {
   private onlineUsersSource = new BehaviorSubject<string[]>([]);
   onlineUsers$ = this.onlineUsersSource.asObservable();
 
-  constructor(private toastrService: ToastrService) { }
+  constructor(private toastrService: ToastrService, private router: Router) { }
 
 
   createHubConnection(user: User) {
@@ -28,7 +28,7 @@ export class PresenceService {
       .withAutomaticReconnect()
       .build();
       
-      this.onUsersConnection(this.hubConnection);
+      this.onUsersConnection();
     }
     
     startHubConnection() {
@@ -36,19 +36,33 @@ export class PresenceService {
         this.hubConnection.start().catch(error => console.error(error));
     }
     
-    onUsersConnection(hubConnection: HubConnection) {
+    
+    onUsersConnection() {
       if (this.hubConnection) {
         
         this.hubConnection.on("UserIsOnline", (username) => {
-          this.toastrService.info(username + ' has connected');
+          this.onlineUsers$.pipe(take(1)).subscribe({
+            next: usernames => this.onlineUsersSource.next([...usernames, username]) 
+          });
         });
 
         this.hubConnection.on("UserIsOffline", (username) => {
-          this.toastrService.warning(username + ' has disconnected');
+          this.onlineUsers$.pipe(take(1)).subscribe({
+            next: usernames => this.onlineUsersSource.next(usernames.filter(x => x !== username))
+          })
         });
 
         this.hubConnection.on("GetOnlineUsers", usernameList => {
           this.onlineUsersSource.next(usernameList);
+        })
+
+        this.hubConnection.on("NewMessageReceived", ({username, knownAs}) => {
+          this.toastrService.info(username + ' has sent you a new message')
+            .onTap
+            .pipe(take(1))
+            .subscribe({
+              next: () => this.router.navigateByUrl('/members/' + username + '?tab=Messages')
+            });
         })
       }
     }

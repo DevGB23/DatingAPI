@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 import { User } from '../_models/User';
 import { environment } from 'src/environments/environment.development';
 import { PresenceService } from './presence.service';
@@ -15,22 +15,15 @@ export class AccountService {
   currentUser$ = this.currentUserSource.asObservable();
 
   constructor(private http: HttpClient, private presenceService: PresenceService) {
-      this.currentUser$.subscribe({
-        next: user => {
-          if (user)
-            this.presenceService.createHubConnection(user)
-        }
-      })
-   }
-
-
+  }
+  
+  
   login(model: any)  {
     return this.http.post<User>(this.baseUrl + 'account/login', model).pipe(
       map((response: User)=> {
         const user = response;
         if ( user ) {
           this.setCurrentUser(user);
-          this.presenceService.startHubConnection();
         }
       }) 
     );
@@ -58,6 +51,8 @@ export class AccountService {
 
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
+    this.presenceService.createHubConnection(user)
+    this.presenceService.startHubConnection();
     
   }
 

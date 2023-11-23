@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { GalleryModule } from 'ng-gallery';
 import { TabsModule } from 'ngx-bootstrap/tabs';
@@ -7,6 +7,7 @@ import { TimeagoModule } from 'ngx-timeago';
 import { MessageService } from 'src/app/_services/message.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-member-messages',
   standalone: true,
   templateUrl: './member-messages.component.html',
@@ -23,20 +24,6 @@ export class MemberMessagesComponent implements OnInit{
  
   ngOnInit(): void {
     
-  }
-
-
-  loadMessages() {
-    // // this.loading = true;
-    // if (this.username) {
-    //   this.messageService.getMessageThread(this.username).subscribe({
-    //     next: response => {
-    //       this.messages = response;
-    //       // this.loading = false;
-    //     }
-    //   })
-
-    // }
   }
 
   sendMessage() {

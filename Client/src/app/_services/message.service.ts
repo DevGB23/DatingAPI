@@ -7,6 +7,8 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { User } from '../_models/User';
 import { PresenceService } from './presence.service';
 import { BehaviorSubject, take } from 'rxjs';
+import { group } from '@angular/animations';
+import { Group } from '../_models/Group';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +35,7 @@ export class MessageService {
       .configureLogging("debug")
       .build()
 
-      this.onMessageConnection()
+      this.onMessageConnection(otherUsername);
   }
 
 
@@ -48,11 +50,26 @@ export class MessageService {
   }
 
 
-  onMessageConnection() {
+  onMessageConnection(otherUsername: string) {
     if (this.hubConnection) {
       this.hubConnection.on("ReceiveMessageThread", messages => {
         this.messageThreadSource.next(messages);
       });
+
+      this.hubConnection.on("UpdatedGroup", (group: Group) => {
+        if (group.connections.some(x => x.username === otherUsername)) {
+          this.messageThread$.pipe(take(1)).subscribe({
+            next: messages => {
+              messages.forEach(message => {
+                if (!message.dateRead) {
+                  message.dateRead = new Date(Date.now())
+                }
+              })
+              this.messageThreadSource.next([...messages])
+            }
+          })
+        }
+      })     
 
       this.hubConnection.on("NewMessage", message => {
         this.messageThread$.pipe(take(1)).subscribe({
