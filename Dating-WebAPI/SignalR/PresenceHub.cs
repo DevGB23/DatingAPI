@@ -20,16 +20,17 @@ public class PresenceHub : Hub
 
         if (string.IsNullOrEmpty(username)) return;
 
-        await _tracker.UserConnected(username, Context.ConnectionId);
+        bool isOnline = await _tracker.UserConnected(username, Context.ConnectionId);
 
-        await Clients.Others.SendAsync("UserIsOnline", username);
+        if (isOnline) await Clients.Others.SendAsync("UserIsOnline", username);
 
         var currentUsers = await _tracker.GetOnlineUsers();
-        
+
         await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
 
         await base.OnConnectedAsync();
     }
+
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
@@ -39,21 +40,30 @@ public class PresenceHub : Hub
         if (string.IsNullOrEmpty(username)) return;
 
         var isOffline = await _tracker.UserDisconnected(username, Context.ConnectionId);
-
         var currentUsers = await _tracker.GetOnlineUsers();
 
-        await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
+
+        // await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
+
+        foreach (var item in currentUsers)
+        {
+            Console.WriteLine($"CurrentOnlineUsers: {item}");
+                        
+        }
+
+        if (isOffline) await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
 
 
         if (exception == null)
         {
-            await base.OnDisconnectedAsync(exception);
             Console.WriteLine("Connection closed without error.");
         }
         else
         {
+            
             Console.WriteLine($"Connection closed due to an error: {exception}");
         }
 
+        await base.OnDisconnectedAsync(exception);
     }
 }

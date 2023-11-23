@@ -14,11 +14,11 @@ public class LogUserActivity : IAsyncActionFilter
         if (!resultContext.HttpContext.User.Identity.IsAuthenticated) return;
 
         var userId = resultContext.HttpContext.User.GetUserId();
-        var repo =  resultContext.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+        var unitOfWork =  resultContext.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
 
-        var user = await repo.GetAsync(includeProperties: "", tracked: true, u=>u.Id == userId);
+        var user = await unitOfWork.UserRepository.GetAsync(includeProperties: "", tracked: true, u=>u.Id == userId);
         user.LastActive = DateTime.UtcNow;
 
-        await repo.SaveAsync();
+        await unitOfWork.Complete();
     }
 }

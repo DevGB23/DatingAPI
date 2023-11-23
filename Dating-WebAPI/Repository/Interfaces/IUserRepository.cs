@@ -11,5 +11,6 @@ public interface IUserRepository : IRepository<AppUser>
     Task<MembersDTO> GetMemberByNameAsync(string username);
     Task<MembersDTO> GetMemberByIdAsync(int id);
     Task UpdateAsync(AppUser entity);
-    Task RemoveAsync(AppUser entity);        
+    Task RemoveAsync(AppUser entity);    
+    Task<string> GetUserGender(string username);    
 }

@@ -44,6 +44,14 @@ public class MessageRepository : IMessageRepository
         return connection;
     }
 
+    public Task<Group> GetGroupforConnection(string connectionId)
+    {
+        return _context.Groups
+            .Include(c => c.Connections)
+            .Where(c => c.Connections.Any(c => c.ConnectionId == connectionId))
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<Message> GetMessage(int id)
     {
         Message messageOut = new();
@@ -84,9 +92,7 @@ public class MessageRepository : IMessageRepository
 
     public async Task<IEnumerable<MessageDTO>> GetMessageThread(string currentUserName, string recipientUserName)
     {
-        List<Message> messages = await _context.Messages
-            .Include(u => u.Sender).ThenInclude(p => p.Photos)
-            .Include(u => u.Recipient).ThenInclude(p => p.Photos)
+        IQueryable<Message> query = _context.Messages
             .Where(
                 m => m.RecipientUsername == currentUserName &&
                     m.RecipientDeleted == false && 
@@ -94,9 +100,9 @@ public class MessageRepository : IMessageRepository
                     m.RecipientUsername == recipientUserName &&
                     m.SenderDeleted == false &&
                     m.SenderUsername == currentUserName 
-            ).OrderBy(m => m.MessageSent).ToListAsync();
+            ).OrderBy(m => m.MessageSent).AsQueryable();
 
-        List<Message> unReadMessages = messages.Where(m => m.DateRead is null 
+        List<Message> unReadMessages = query.Where(m => m.DateRead == null 
                     && m.RecipientUsername == currentUserName).ToList();
 
         if (unReadMessages.Any())
@@ -107,22 +113,12 @@ public class MessageRepository : IMessageRepository
             }
         }
 
-        await _context.SaveChangesAsync();
-
-        return _mapper.Map<IEnumerable<MessageDTO>>(messages);
+        return await query.ProjectTo<MessageDTO>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
     public void RemoveConnection(Connection connection)
     {
         _context.Connections.Remove(connection);
     }
-
-    public async Task<bool> SaveAllAsync()
-    {
-        int change = await _context.SaveChangesAsync();
-
-        if (change > 0) return true;
-        
-        return false;        
-    }
+    
 }

@@ -9,15 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dating_WebAPI.Controllers;
 public class MessagesController : BaseApiController
 {
-     private readonly IMapper _mapper;
-    private readonly IMessageRepository _messageRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public MessagesController(IMapper mapper, IMessageRepository messageRepository, IUserRepository userRepository)
-        {
-            _mapper = mapper;
-        _messageRepository = messageRepository;
-        _userRepository = userRepository;
+    public MessagesController(IUnitOfWork unitOfWork, IMapper mapper)
+    {
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
         [HttpPost]
@@ -29,8 +27,8 @@ public class MessagesController : BaseApiController
             if (username == createMessage?.RecipientUsername?.ToLower())
                 return BadRequest("You cannot send messages to yourself!");
 
-            AppUser? sender = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
-            AppUser? recipient = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == createMessage.RecipientUsername);
+            AppUser? sender = await _unitOfWork.UserRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
+            AppUser? recipient = await _unitOfWork.UserRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == createMessage.RecipientUsername);
 
             if (recipient is null) return NotFound();
 
@@ -43,9 +41,9 @@ public class MessagesController : BaseApiController
                 Content = createMessage.Content
             };
 
-            _messageRepository.AddMessage(message);
+            _unitOfWork.MessageRepository.AddMessage(message);
 
-            if (await _messageRepository.SaveAllAsync()) return Ok(_mapper.Map<MessageDTO>(message));
+            if (await _unitOfWork.Complete()) return Ok(_mapper.Map<MessageDTO>(message));
 
             return BadRequest("Failed to create a message");
         }
@@ -56,7 +54,7 @@ public class MessagesController : BaseApiController
         {
             msgParams.Username = User.GetUsername();
 
-            PagedList<MessageDTO> messages = await _messageRepository.GetMessagesForUser(msgParams);
+            PagedList<MessageDTO> messages = await _unitOfWork.MessageRepository.GetMessagesForUser(msgParams);
 
             Response.AddPaginationHeader(new PaginationHeader(messages.CurrentPage, 
                     messages.PageSize, messages.TotalCount, messages.TotalPages));
@@ -65,21 +63,12 @@ public class MessagesController : BaseApiController
         }
 
 
-        [HttpGet("thread/{username}")]
-        public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessagesThread(string username)
-        {
-            var currentUserName = User.GetUsername();
-
-            return Ok(await _messageRepository.GetMessageThread(currentUserName, username));
-        }
-
-
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteMessage(int id)
         {
             var username = User.GetUsername();
 
-            var message = await _messageRepository.GetMessage(id);
+            var message = await _unitOfWork.MessageRepository.GetMessage(id);
 
             if (message.SenderUsername != username && message.RecipientUsername != username)
                 return Unauthorized();
@@ -90,7 +79,7 @@ public class MessagesController : BaseApiController
 
             if (message.SenderDeleted || message.RecipientDeleted)
             {
-                _messageRepository.DeleteMessage(message);
+                _unitOfWork.MessageRepository.DeleteMessage(message);
             }
 
             return Ok();

@@ -8,27 +8,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dating_WebAPI.Controllers;
 public class LikesController: BaseApiController
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IUserLikeRepository _likesRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public LikesController(IUserRepository userRepository, IUserLikeRepository likesRepository)
+    public LikesController(IUnitOfWork unitOfWork)
     {
-        _userRepository = userRepository;
-        _likesRepository = likesRepository;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpPost("{username}")]
     public async Task<ActionResult> AddLike(string username)
         {
             var sourceUserId = User.GetUserId();
-            var likedUser = await _userRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
-            var sourceUser = await _likesRepository.GetUserWithLikes(sourceUserId);
+            var likedUser = await _unitOfWork.UserRepository.GetAsync(includeProperties: "", tracked: true, u => u.UserName == username);
+            var sourceUser = await _unitOfWork.LikesRepository.GetUserWithLikes(sourceUserId);
 
             if (likedUser == null) return NotFound();
 
             if (sourceUser.UserName == username) return BadRequest("You cannot like yourself");
 
-            UsersLike userLike = await _likesRepository.GetUserLike(sourceUserId, likedUser.Id);
+            UsersLike userLike = await _unitOfWork.LikesRepository.GetUserLike(sourceUserId, likedUser.Id);
 
             if (userLike != null) return BadRequest("You already like this user");
 
@@ -40,10 +38,9 @@ public class LikesController: BaseApiController
 
             sourceUser.LikedUsers.Add(userLike);
 
-            await _userRepository.SaveAsync();
-
-            // return BadRequest("Failed to like user");
-            return Ok();
+            if (await _unitOfWork.Complete()) return Ok();
+            
+            return BadRequest("Failed to like user");
         }
 
 
@@ -52,7 +49,7 @@ public class LikesController: BaseApiController
         {
             likesParams.UserId = User.GetUserId();
 
-            var users = await _likesRepository.GetUserLikes(likesParams);
+            var users = await _unitOfWork.LikesRepository.GetUserLikes(likesParams);
 
             Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, 
                 users.TotalCount, users.TotalPages));

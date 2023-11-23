@@ -86,4 +86,12 @@ public class UserRepository : Repository<AppUser>, IUserRepository
     {
         return await _db.Users.ToListAsync();
     }
+
+    public async Task<string> GetUserGender(string username)
+    {
+        return await _db.Users
+            .Where(u => u.UserName == username)
+            .Select(u => u.Gender)
+            .FirstOrDefaultAsync();
+    }   
 }
